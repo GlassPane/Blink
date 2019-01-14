@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "com.github.glasspane.blink.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
