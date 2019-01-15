@@ -94,7 +94,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
+            artifact remapJar.jar
             artifact javadocJar
             artifact sourcesJar
         }
@@ -102,6 +102,51 @@ publishing {
 
     repositories {
         mavenLocal()
+    }
+}
+
+curseforge {
+    if(project.hasProperty("curse_key")) {
+        apiKey = findProperty("curse_key")
+    }
+
+    if(project.hasProperty("curseforge_id")) {
+        project {
+            id = findProperty("curseforge_id")
+            mainArtifact(remapJar.jar) {
+                displayName = "${project.archivesBaseName} MC${mc_version} v${mod_version}"
+            }
+            releaseType = project.release_type
+
+            //TODO remove when MC 1.14 releases
+            //usually automatically determined by the CurseGradle plugin
+            addGameVersion '1.14-Snapshot'
+
+            //changelogType = "markdown"
+            //changelog = change_log //TODO generate changelog
+
+            //relations {
+            //
+            //}
+
+            addArtifact javadocJar
+            addArtifact sourcesJar
+        }
+        options {
+            forgeGradleIntegration = false
+        }
+
+    }
+}
+afterEvaluate {
+    //make curseforge task depend on build
+    if(project.hasProperty("curseforge_id")) {
+        tasks.each {
+            if(it.name == "curseforge" + findProperty(curseforge_id)) {
+                it.dependsOn build
+                it.mustRunAfter build
+            }
+        }
     }
 }
 
