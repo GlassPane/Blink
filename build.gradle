@@ -107,11 +107,11 @@ publishing {
 }
 
 curseforge {
-    if(project.hasProperty("curse_key")) {
+    if (project.hasProperty("curse_key")) {
         apiKey = findProperty("curse_key")
     }
 
-    if(project.hasProperty("curseforge_id")) {
+    if (project.hasProperty("curseforge_id")) {
         project {
             id = findProperty("curseforge_id")
             mainArtifact(jar) {
@@ -163,9 +163,9 @@ tasks.publish.dependsOn build
 
 afterEvaluate {
     //make curseforge task depend on build
-    if(project.hasProperty("curseforge_id")) {
+    if (project.hasProperty("curseforge_id")) {
         tasks.each {
-            if(it.name == "curseforge" + findProperty(curseforge_id)) {
+            if (it.name == "curseforge" + findProperty(curseforge_id)) {
                 it.dependsOn build
                 it.mustRunAfter build
             }
