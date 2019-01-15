@@ -3,7 +3,7 @@ import java.time.Year
 
 plugins {
     id "fabric-loom" version "0.2.0-SNAPSHOT"
-    id "net.minecrell.licenser" version "0.4"
+    id "net.minecrell.licenser" version "0.2.1"
     id "com.matthewprenger.cursegradle" version "1.1.2"
     id "maven-publish"
 }
@@ -139,17 +139,6 @@ curseforge {
 
     }
 }
-afterEvaluate {
-    //make curseforge task depend on build
-    if(project.hasProperty("curseforge_id")) {
-        tasks.each {
-            if(it.name == "curseforge" + findProperty(curseforge_id)) {
-                it.dependsOn build
-                it.mustRunAfter build
-            }
-        }
-    }
-}
 
 license {
     header = file("code_quality/${license_header}_HEADER.txt")
@@ -161,6 +150,7 @@ license {
     style {
         java = "BLOCK_COMMENT"
     }
+    newLine = false // Disables the empty line between the header and package name
     ignoreFailures = true //Ignore failures and only print a warning on license violations
 
     //export variables
@@ -170,3 +160,15 @@ license {
     }
 }
 tasks.publish.dependsOn build
+
+afterEvaluate {
+    //make curseforge task depend on build
+    if(project.hasProperty("curseforge_id")) {
+        tasks.each {
+            if(it.name == "curseforge" + findProperty(curseforge_id)) {
+                it.dependsOn build
+                it.mustRunAfter build
+            }
+        }
+    }
+}
