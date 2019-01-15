@@ -1,19 +1,19 @@
 {
-  "id": "blink",
-  "name": "Blink",
-  "description": "Fast Short-Range Travel",
-  "version": "${version}",
-  "side": "universal",
-  "initializers": [
-    "com.github.glasspane.blink.mixin.init.BlinkLoader"
-  ],
-  "requires": {
-    "fabric": "*",
-    "textilelib": "*",
-    "mesh": "*"
-  },
-  "mixins": {
-    "client": "blink.client.json",
-    "common": "blink.common.json"
-  }
+    "id": "blink",
+    "name": "Blink",
+    "description": "Fast Short-Range Travel",
+    "version": "${version}",
+    "side": "universal",
+    "initializers": [
+        "com.github.glasspane.blink.mixin.init.BlinkLoader",
+        "com.github.glasspane.blink.mixin.init.BlinkClientLoader"
+    ],
+    "requires": {
+        "fabric": "*",
+        "textilelib": "*",
+        "mesh": "*"
+    },
+    "mixins": {
+        "client": "blink.client.json"
+    }
 }

@@ -3,6 +3,7 @@
   "package": "com.github.glasspane.blink.mixin.client",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+      "MixinRenderMode"
   ],
   "injectors": {
     "defaultRequire": 1
