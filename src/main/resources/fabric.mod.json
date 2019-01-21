@@ -5,8 +5,8 @@
     "version": "${version}",
     "side": "universal",
     "initializers": [
-        "com.github.glasspane.blink.mixin.init.BlinkLoader",
-        "com.github.glasspane.blink.mixin.init.BlinkClientLoader"
+        "com.github.glasspane.blink.Blink",
+        "com.github.glasspane.blink.client.BlinkClientHandler"
     ],
     "requires": {
         "fabric": "*",

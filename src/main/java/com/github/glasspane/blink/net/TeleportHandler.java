@@ -27,6 +27,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.packet.CustomPayloadServerPacket;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Vec3d;
+import org.apache.logging.log4j.Level;
 
 public class TeleportHandler {
 
@@ -44,11 +45,19 @@ public class TeleportHandler {
 
     public static void onPacketReceived(PacketContext ctx, PacketByteBuf buf) {
         PlayerEntity player = ctx.getPlayer();
-        if(BlinkHandler.canBlink(player)) {
-            Vec3d targetPos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+        Vec3d targetPos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+        boolean canBlink = BlinkHandler.canBlink(player);
+        double distance = player.distanceTo(targetPos.x, targetPos.y, targetPos.z);
+        if(canBlink && distance <= Blink.BLINK_RANGE + 3.0D) {
             synchronized (BlinkHandler.PLAYER_TARGETS) {
-                BlinkHandler.PLAYER_TARGETS.put(player, targetPos); //TODO verify that data
+                BlinkHandler.PLAYER_TARGETS.put(player, targetPos);
             }
+            if(Blink.TELEPORT_COOLDOWN_TICKS > 0) player.getItemCooldownManager().set(Blink.VORTEX_MANIPULATOR, Blink.TELEPORT_COOLDOWN_TICKS);
         }
+        else {
+            Blink.getLogger().printf(Level.WARN, "Player %s (%s) tried to teleport to invalid location: [%.1f, %.1f, %.1f] (was at [%.1f, %.1f, %.1f]); distance: %.1f, maxDistance. %.1f, canBlink: %s", player.getEntityName(), player.getUuidAsString(), player.x, player.y, player.z, targetPos.x, targetPos.y, targetPos.z, distance, Blink.BLINK_RANGE, canBlink);
+        }
+        //TODO mappings
+        player.method_6021(); //clearActiveHand / reestActiveHand
     }
 }

@@ -32,7 +32,8 @@ public abstract class MixinRenderMode {
     @Inject(method = "begin()V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;enableBlend()V", shift = At.Shift.AFTER), cancellable = true, remap = false)
     private void begin(CallbackInfo ci) {
         if(BlinkClientHandler.isRendering()) {
-            GlStateManager.blendFunc(GlStateManager.SrcBlendFactor.SRC_COLOR, GlStateManager.DstBlendFactor.CONSTANT_COLOR);
+            GlStateManager.blendFunc(GlStateManager.class_1033.SRC_COLOR, GlStateManager.class_1027.CONSTANT_COLOR);
+            //GlStateManager.blendFunc(GlStateManager.SrcBlendFactor.SRC_COLOR, GlStateManager.DstBlendFactor.CONSTANT_COLOR); //TODO mappings broke
             GL14.glBlendColor(0.2F, 0.9F, 0.9F, 0.7F);
             ci.cancel();
         }
