@@ -21,7 +21,7 @@ import com.github.glasspane.blink.Blink;
 import com.github.glasspane.mesh.util.MeshHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.*;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.*;
 
 public class RayHelper {
@@ -30,48 +30,45 @@ public class RayHelper {
     //FIXME need better logic for moving player BB out of adjacent blocks!
     public static Vec3d raytrace(Entity entity, float deltaTime) {
         World world = entity.world;
-        HitResult result = MeshHelper.rayTraceEntity(entity, Blink.BLINK_RANGE, RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY, deltaTime);
-        switch(result.getType()) {
+        HitResult trace = MeshHelper.rayTraceEntity(entity, Blink.BLINK_RANGE, RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY, deltaTime);
+        switch(trace.getType()) {
             case ENTITY:
                 //TODO back up by entity collision box size
                 break;
             case BLOCK:
                 break;
             case NONE: //TODO trace down by 1 block
-                result = MeshHelper.rayTrace(world, entity, result.getPos(), result.getPos().subtract(0, 1, 0), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
+                trace = MeshHelper.rayTrace(world, entity, trace.getPos(), trace.getPos().subtract(0, 1, 0), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
                 break;
         }
-        Vec3d ret = result.getPos();
-        if(result.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult hitResult = (BlockHitResult) result;
-            switch(hitResult.getSide()) {
+        Vec3d pos = trace.getPos();
+        if(trace.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult result = (BlockHitResult) trace;
+            switch(result.getSide()) {
                 case UP:
                     break;
                 case DOWN:
-                    ret = ret.subtract(0, entity.getHeight(), 0);
+                    pos = pos.subtract(0, entity.getHeight(), 0);
                 default:
-                    if(ret.y >= 0.5D) { //TODO check cliffs
-
+                    if(pos.y >= 0.5D) {
+                        BlockPos testPos;
+                        switch(result.getSide()) {
+                            case EAST:
+                                testPos = new BlockPos(pos.x - 1, pos.y + 1, pos.z);
+                                break;
+                            case SOUTH:
+                                testPos = new BlockPos(pos.x, pos.y + 1, pos.z - 1);
+                                break;
+                            default:
+                                testPos = new BlockPos(pos.x, pos.y + 1, pos.z);
+                        }
+                        Vec3d entityPos = entity.getCameraPosVec(deltaTime);
+                        Vec3d toTarget = pos.subtract(entityPos);
+                        if(world.isAir(testPos) && world.isAir(testPos.up())) {
+                            toTarget.multiply(Math.max((toTarget.length() + 0.8D) / toTarget.length(), 1.0D));
+                            pos = new Vec3d(entityPos.x + toTarget.x, testPos.getY(), entityPos.z + toTarget.z);
+                        }
                     }
-
-
-//                    Vec3d playerPos = entity.getPosVector();
-//                    Vec3d playerToTarget = result.getPos().subtract(playerPos);
-//                    //check edge
-//                    if(result.pos.y - (int) result.pos.y >= 0.5D) {
-//                        BlockPos testPos = new BlockPos(result.pos.x, result.pos.y + 1, result.pos.z);
-//                        //band-aid fix for flooring errors
-//                        if(result.side == Direction.EAST) {
-//                            testPos = testPos.offset(Direction.WEST);
-//                        }
-//                        else if(result.side == Direction.SOUTH) {
-//                            testPos = testPos.offset(Direction.NORTH);
-//                        }
-//                        if(entity.world.isAir(testPos)) {
-//                            playerToTarget = playerToTarget.multiply(Math.max((playerToTarget.length() + 0.8D) / playerToTarget.length(), 1.0D));
-//                            return new Vec3d(playerPos.x + playerToTarget.x, testPos.getY(), playerPos.z + playerToTarget.z);
-//                        }
-//                    }
 //                    //unstuck from wall
 //                    playerToTarget = playerToTarget.multiply(Math.max((playerToTarget.length() - (entity.width / 2.0F) - 0.0001D) / playerToTarget.length(), 0.0001D));
 //                    Vec3d newOrigin = playerPos.add(playerToTarget);
@@ -96,8 +93,7 @@ public class RayHelper {
 //                    }
             }
         }
-
         //TODO unstuck entity box here
-        return ret;
+        return pos;
     }
 }
