@@ -26,8 +26,6 @@ import net.minecraft.world.*;
 
 public class RayHelper {
 
-    //TODO if facing = up or down still apply unstuck logic
-    //FIXME need better logic for moving player BB out of adjacent blocks!
     public static Vec3d raytrace(Entity entity, float deltaTime) {
         World world = entity.world;
         HitResult trace = MeshHelper.rayTraceEntity(entity, Blink.BLINK_RANGE, RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY, deltaTime);
@@ -35,7 +33,6 @@ public class RayHelper {
         if(trace.getType() == HitResult.Type.NONE) {
             trace = MeshHelper.rayTrace(world, entity, trace.getPos(), trace.getPos().subtract(0, 1, 0), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
             secondPass = false;
-            //secondPass = trace.getType() != HitResult.Type.NONE;
         }
         else {
             secondPass = true;
@@ -59,21 +56,29 @@ public class RayHelper {
                             case EAST:
                                 testPos = new BlockPos(pos.x - 1, pos.y + 1, pos.z);
                                 break;
+                            case WEST:
+                            case NORTH:
+                                testPos = new BlockPos(pos.x, pos.y + 1, pos.z);
+                                break;
                             case SOUTH:
                                 testPos = new BlockPos(pos.x, pos.y + 1, pos.z - 1);
                                 break;
-                            default:
-                                testPos = new BlockPos(pos.x, pos.y + 1, pos.z);
+                                default: //should never happen, but better safe than sorry
+                                    throw new RuntimeException("hit result had wrong value: " + result.getSide());
                         }
                         if(world.isAir(testPos) && world.isAir(testPos.up())) { //TODO check all blocks in BB
                             toTarget = toTarget.multiply(Math.max((toTarget.length() + 0.8D) / toTarget.length(), 1.0D));
-                            pos = new Vec3d(entityPos.x + toTarget.x, testPos.getY(), entityPos.z + toTarget.z);
+                            pos = new Vec3d(entityPos.x + toTarget.x, testPos.getY() + 0.1D, entityPos.z + toTarget.z);
+                            HitResult result1 = MeshHelper.rayTrace(world, entity, pos, pos.subtract(0.0D, 1.0D, 0.0D), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
+                            pos = result1.getPos();
                             secondPass = false;
                         }
                     }
                     if(secondPass) {
-                        toTarget = toTarget.multiply((toTarget.length() - (entity.getWidth() * 1.2F)) / toTarget.length()); //half of bounding box width
+                        toTarget = toTarget.multiply((toTarget.length() - (entity.getWidth() * 1.3F)) / toTarget.length());
                         pos = entityPos.add(toTarget);
+                        HitResult result1 = MeshHelper.rayTrace(world, entity, pos, pos.subtract(0.0D, 1.0D, 0.0D), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
+                        pos = result1.getPos();
                     }
             }
         }

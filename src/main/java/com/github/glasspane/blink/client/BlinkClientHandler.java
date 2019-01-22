@@ -75,8 +75,5 @@ public class BlinkClientHandler implements ClientModInitializer {
             GlStateManager.enableLighting();
             GlStateManager.disableCull();
         }
-        //TODO remove
-        //check held equipment
-        //if(StreamSupport.stream(MinecraftClient.getInstance().player.getItemsHand().spliterator(), false).noneMatch(stack -> stack.getItem() == Blink.VORTEX_MANIPULATOR)) return;
     }
 }
