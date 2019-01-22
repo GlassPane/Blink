@@ -50,7 +50,7 @@ public class RayHelper {
                 case DOWN:
                     pos = pos.subtract(0, entity.getHeight(), 0);
                 default:
-                    if(pos.y >= 0.5D) {
+                    if(pos.y - (int) pos.y >= 0.5D) {
                         BlockPos testPos;
                         switch(result.getSide()) {
                             case EAST:
