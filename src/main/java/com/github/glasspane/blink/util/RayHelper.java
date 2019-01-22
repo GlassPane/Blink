@@ -35,9 +35,7 @@ public class RayHelper {
             case ENTITY:
                 //TODO back up by entity collision box size
                 break;
-            case BLOCK:
-                break;
-            case NONE: //TODO trace down by 1 block
+            case NONE:
                 trace = MeshHelper.rayTrace(world, entity, trace.getPos(), trace.getPos().subtract(0, 1, 0), RayTraceContext.ShapeType.COLLIDER, RayTraceContext.FluidHandling.SOURCE_ONLY);
                 break;
         }
